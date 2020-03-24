@@ -12,7 +12,7 @@ PASSWORD = os.getenv('_JIRA_PASSWORD')
 
 
 def create_issues_link(ids):
-    quary = ",".join(map(str, [i for i in ids if i] ))
+    quary = ",".join(map(str, [i for i in ids if i and i != EMPTY_ID]))
     return "https://devjira.skyeng.ru/issues/?jql=issue in ({})".format(quary)
 
 
@@ -44,6 +44,11 @@ def fill_report(issues_id):
     row = []
     for raw in issues_id:
         id = raw.id
+        if id == EMPTY_ID:
+            if is_valid_git_comment(raw.comment, TASK_TYPE_OTHER):
+                row.append(ReportItem(id, raw.comment, TASK_TYPE_OTHER))
+            continue
+
         try:
             issue = jira.issue(id)
 
@@ -54,21 +59,17 @@ def fill_report(issues_id):
                 row.append(ReportItem(id, summary, type))
 
         except Exception as e:
-            if is_valid_git_comment(raw.comment, TASK_TYPE_OTHER):
-                row.append(ReportItem(id, raw.comment, TASK_TYPE_OTHER))
+            if is_valid_git_comment(raw.comment, TASK_TYPE_DONT_KNOW):
+                row.append(ReportItem(id, raw.comment, TASK_TYPE_DONT_KNOW))
 
     return row
 
-    #
-    # issue = jira.issue("MP-324")
-    # print(issue.fields.status)
-    # print(issue.fields.issuetype)
-
 
 def __get_summery(type, raw, issue):
-    comment = ""
     if type == TASK_TYPE_OTHER:
         comment = raw.comment
+    elif type == TASK_TYPE_DONT_KNOW:
+        comment = raw.comment + issue.fields.issuetype
     else:
         comment = issue.fields.summary
 

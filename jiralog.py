@@ -29,6 +29,7 @@ def main():
     print_block(groupby, TASK_TYPE_TASK)
     print_block(groupby, TASK_TYPE_BUG)
     print_block(groupby, TASK_TYPE_REFACTOR)
+    print_block(groupby, TASK_TYPE_DONT_KNOW)
     print_block(groupby, TASK_TYPE_OTHER)
 
     print_changelog_footer(get_current_branch(), get_stat(arg.path))

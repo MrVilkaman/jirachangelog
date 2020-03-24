@@ -25,7 +25,7 @@ def type_as_emoji(self):
         "Bug": TASK_TYPE_BUG,
         "Bug subtask": TASK_TYPE_BUG,
         "Refactoring task": TASK_TYPE_REFACTOR
-    }.get(type, TASK_TYPE_OTHER)
+    }.get(type, TASK_TYPE_DONT_KNOW)
 
 
 def print_block(groupby, type_task):
@@ -44,7 +44,7 @@ def print_block(groupby, type_task):
 
 
 def get_type_block_title(type):
-    title = {TASK_TYPE_TASK: "Фичи", TASK_TYPE_BUG: "Баги", TASK_TYPE_REFACTOR: "Рефакторинг"}.get(type, None)
+    title = {TASK_TYPE_TASK: "Фичи", TASK_TYPE_BUG: "Баги", TASK_TYPE_REFACTOR: "Рефакторинг", TASK_TYPE_DONT_KNOW: "Остальное"}.get(type, None)
 
     if title is None:
         return "Другое"
@@ -61,11 +61,11 @@ def print_changelog_footer(branch_name, stat):
 
 
 def __find_jira(line):
-    jira = re.findall("\[(.*?)\]", line)
+    jira = re.findall("\[(?:.*?)\]|(?:(?:MV|MOB|MP|COM|VIM)-\d{1,5})", line)
     if not jira:
         return RawGitItem(EMPTY_ID, line)
 
-    return RawGitItem(jira[0], line)
+    return RawGitItem(filter_git_id(jira[0]), line)
 
 
 def parse_jira(p_line):
@@ -98,4 +98,8 @@ def is_valid_git_comment(rawStr, type):
 
 
 def filter_git_comment(rawStr):
-    return re.sub("(\[Android\]|Android:)", "", rawStr)
+    return re.sub("(\[Android\]|Android:)|^:", "", rawStr)
+
+def filter_git_id(rawStr):
+    sub = re.sub("\[", "", rawStr)
+    return re.sub("\]", "", sub)
