@@ -1,6 +1,7 @@
 # coding=utf-8
 import argparse
 
+from utils.CredentialsLoader import Credentials, CredentialsLoader
 from utils.git import *
 from utils.jirautils import *
 from utils.utils import *
@@ -9,13 +10,11 @@ from utils.utils import *
 # *** MAIN ***
 
 def main():
-    check_env()
-
     arg = parse_path()
-
+    credentials: Credentials = CredentialsLoader().load(arg.creds)
     command = get_commit_log(arg.path)
     ids = parse_jira(command)
-    tasks = fill_report(ids)
+    tasks = fill_report(ids, credentials)
     # tasks = fill_report_stub(ids)
 
     print_changelog_header(get_app_name(arg), arg.version)
@@ -46,6 +45,7 @@ def parse_path():
     parser.add_argument("--version", "-v", type=str, default="5.xx")
 
     parser.add_argument("--appname", "-a", type=str)
+    parser.add_argument("--creds", "-c", type=str, help="Path to file with credentials for jira")
     parser.add_argument("--skyeng", "-s", action='store_true')
     parser.add_argument("--teachers", "-t", action='store_true')
 

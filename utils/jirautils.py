@@ -2,6 +2,7 @@
 import os
 from jira import JIRA
 
+from .CredentialsLoader import Credentials
 from .domain import *
 from .models import *
 
@@ -37,9 +38,9 @@ def fill_report_stub(git_raw):
     return row2
 
 
-def fill_report(issues_id):
-    jira_options = {'server': BASE_URL}
-    jira = JIRA(options=jira_options, basic_auth=(LOGIN, PASSWORD))
+def fill_report(issues_id, credentials: Credentials):
+    jira_options = {'server': credentials.jira_url}
+    jira = JIRA(options=jira_options, basic_auth=(credentials.login, credentials.password))
 
     row = []
     for raw in issues_id:

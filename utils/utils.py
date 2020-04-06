@@ -1,17 +1,10 @@
 # coding=utf-8
 import os
 import subprocess
+from collections import Iterator
 
 
-def check_env():
-    if not (os.getenv('_JIRA_LOGIN') and os.getenv('_JIRA_PASSWORD')):
-        print("E: LOGIN or PASSWORD is empty")
-        print("E: do `source ./env.sh`")
-        exit(1)
-
-# return массив строк
-def run_command(command):
-    # type: (object) -> object
+def run_command(command: str) -> Iterator:
     p = subprocess.Popen(command.split(),
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
@@ -19,6 +12,5 @@ def run_command(command):
     return map(strip_, iter(p.stdout.readline, b''))
 
 
-def safe_print(data):
-    # can also use 'replace' instead of 'ignore' for errors= parameter
-    print(str(data).encode('UTF-8', errors='ignore').decode('cp1251', errors='ignore'))
+def safe_print(data: object):
+    print(str(data))
